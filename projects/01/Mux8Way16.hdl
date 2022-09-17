@@ -1,0 +1,51 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/Mux8Way16.hdl
+
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel == 000
+ *       b if sel == 001
+ *       etc.
+ *       h if sel == 111
+ */
+
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16]; 
+    PARTS:
+
+    Not(in=a, out=nota);
+    Not(in=b, out=notb);
+    Not(in=c, out=notc);
+
+    And(a=nota, b=notb, out=notanotb);
+    And(a=notb, b=notc, out=notbnotc);
+    And(a=nota, b=notc, out=notanotc);
+
+    And(a=a, b=b, out=aandb);
+    And(a=b, b=c, out=bandc);
+    And(a=a, b=c, out=aandc);
+
+    And(a=notanotb, b=notc, out=keepa); // 000
+    And(a=notbnotc, b=a     out=keepb); // 001
+    And(a=notanotc, b=b     out=keepc); // 010
+    And(a=aandb,    b=notc  out=keepd); // 011
+    And(a=notanotb, b=c     out=keepe); // 100
+    And(a=aandc,    b=notb  out=keepf); // 101
+    And(a=bandc,    b=nota  out=keepg); // 110
+    And(a=aandb,    b=c     out=keeph); // 111
+
+    Mux16(a[0..15]=false, b=a, sel=keepa, out=muxa);
+    Mux16(a=muxa,         b=b, sel=keepb, out=muxb);
+    Mux16(a=muxb,         b=c, sel=keepc, out=muxc);
+    Mux16(a=muxc,         b=d, sel=keepd, out=muxd);
+    Mux16(a=muxd,         b=e, sel=keepe, out=muxe);
+    Mux16(a=muxe,         b=f, sel=keepf, out=muxf);
+    Mux16(a=muxf,         b=g, sel=keepg, out=muxg);
+    Mux16(a=muxg,         b=h, sel=keeph, out=out);
+
+}
