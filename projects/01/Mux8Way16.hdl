@@ -15,36 +15,36 @@ CHIP Mux8Way16 {
     IN a[16], b[16], c[16], d[16],
        e[16], f[16], g[16], h[16],
        sel[3];
-    OUT out[16]; 
+    OUT out[16];
     PARTS:
 
-    Not(in=a, out=nota);
-    Not(in=b, out=notb);
-    Not(in=c, out=notc);
+    Not(in=sel[0], out=not0);
+    Not(in=sel[1], out=not1);
+    Not(in=sel[2], out=not2);
 
-    And(a=nota, b=notb, out=notanotb);
-    And(a=notb, b=notc, out=notbnotc);
-    And(a=nota, b=notc, out=notanotc);
+    And(a=not0, b=not1, out=not01);
+    And(a=not1, b=not2, out=not12);
+    And(a=not0, b=not2, out=not02);
 
-    And(a=a, b=b, out=aandb);
-    And(a=b, b=c, out=bandc);
-    And(a=a, b=c, out=aandc);
+    And(a=sel[0], b=sel[1], out=and01);
+    And(a=sel[1], b=sel[2], out=and12);
+    And(a=sel[0], b=sel[2], out=and02);
 
-    And(a=notanotb, b=notc, out=keepa); // 000
-    And(a=notbnotc, b=a     out=keepb); // 001
-    And(a=notanotc, b=b     out=keepc); // 010
-    And(a=aandb,    b=notc  out=keepd); // 011
-    And(a=notanotb, b=c     out=keepe); // 100
-    And(a=aandc,    b=notb  out=keepf); // 101
-    And(a=bandc,    b=nota  out=keepg); // 110
-    And(a=aandb,    b=c     out=keeph); // 111
+    And(a=not01, b=not2,   out=keepa); // 000
+    And(a=not12, b=sel[0], out=keepb); // 001
+    And(a=not02, b=sel[1], out=keepc); // 010
+    And(a=and01, b=not2,   out=keepd); // 011
+    And(a=not01, b=sel[2], out=keepe); // 100
+    And(a=and02, b=not1,   out=keepf); // 101
+    And(a=and12, b=not0,   out=keepg); // 110
+    And(a=and01, b=sel[2], out=keeph); // 111
 
     Mux16(a[0..15]=false, b=a, sel=keepa, out=muxa);
     Mux16(a=muxa,         b=b, sel=keepb, out=muxb);
     Mux16(a=muxb,         b=c, sel=keepc, out=muxc);
     Mux16(a=muxc,         b=d, sel=keepd, out=muxd);
     Mux16(a=muxd,         b=e, sel=keepe, out=muxe);
-    Mux16(a=muxe,         b=f, sel=keepf, out=muxf);
+    Mux16(a=muxe,        b=f, sel=keepf, out=muxf);
     Mux16(a=muxf,         b=g, sel=keepg, out=muxg);
     Mux16(a=muxg,         b=h, sel=keeph, out=out);
 
