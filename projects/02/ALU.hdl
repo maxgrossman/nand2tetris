@@ -47,27 +47,46 @@ CHIP ALU {
     Mux16(a=x, b[0..15]=false, sel=zx, out=outzx);
 
     // choose notx when nx == 1;
-    Not16(in=x, out=notx);
+    Not16(in=outzx, out=notx);
     Mux16(a=outzx, b=notx, sel=nx, out=outnx);
 
     // choose zeroed y if zy == 1;
     Mux16(a=y, b[0..15]=false, sel=zy, out=outzy);
 
     // choose noty when ny == 1;
-    Not16(in=y, out=noty);
+    Not16(in=outzy, out=noty);
     Mux16(a=outzy, b=noty, sel=ny, out=outny);
 
     // choose x+y if f == 1 or x&y if f == 0
-    Add16(a=outnx, b=outny, out=addxy);
-    And16(a=outnx, b=outny, out=andxy);
+    Add16(a=outnx, b=outny, out=addxy); And16(a=outnx, b=outny, out=andxy);
     Mux16(a=andxy, b=addxy, sel=f, out=outf);
 
     // choose not outf if no == 1
     Not16(in=outf, out=notoutf);
     Mux16(a=outf, b=notoutf, sel=no, out=outno);
-    Add16(a=outno, b[0..15]=false, out=out, out[15]=ng); // negative if sign bit is flipped
 
-    // says, flip by bits and then add two.
-    Not16(in=outno, out=notout);
-    Add16(a=notout, b[0]=false,b[1]=true,b[2..15]=false, out[0]=zr);
+    // get the flipped bits of outno then see that each are equal to 1, which'd mean pre-flip all were zero
+    Not16(in=outno,         
+        out[0]=checkzero0,   out[1]=checkzero1, 
+        out[2]=checkzero2,   out[3]=checkzero3,
+        out[4]=checkzero4,   out[5]=checkzero5, 
+        out[6]=checkzero6,   out[7]=checkzero7,
+        out[8]=checkzero8,   out[9]=checkzero9, 
+        out[10]=checkzero10, out[11]=checkzero11,
+        out[12]=checkzero12, out[13]=checkzero13,
+        out[14]=checkzero14, out[15]=checkzero15
+    );
+
+    And(a=checkzero0, b=checkzero1,  out=and0to1);  And(a=and0to1,  b=checkzero2,  out=and0to2);
+    And(a=and0to2,    b=checkzero3,  out=and0to3);  And(a=and0to3,  b=checkzero4,  out=and0to4);
+    And(a=and0to4,    b=checkzero5,  out=and0to5);  And(a=and0to5,  b=checkzero6,  out=and0to6);
+    And(a=and0to6,    b=checkzero7,  out=and0to7);  And(a=and0to7,  b=checkzero8,  out=and0to8);
+    And(a=and0to8,    b=checkzero9,  out=and0to9);  And(a=and0to9,  b=checkzero10, out=and0to10);
+    And(a=and0to10,   b=checkzero11, out=and0to11); And(a=and0to11, b=checkzero12, out=and0to12);
+    And(a=and0to12,   b=checkzero13, out=and0to13); And(a=and0to13, b=checkzero14, out=and0to14);
+    And(a=and0to14, b=checkzero15, out=zr);
+
+
+    // noop to get the outno to out and also to pass the sign bit to ng
+    Add16(a=outno, b[0..15]=false, out=out, out[15]=ng);
 }
