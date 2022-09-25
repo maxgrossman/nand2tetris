@@ -15,5 +15,253 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    Mux16(a=carryout, b=in, sel=load, 
+          out[0]=out0,   out[1]=out1,
+          out[2]=out2,   out[3]=out3,
+          out[4]=out4,   out[5]=out5,
+          out[6]=out6,   out[7]=out7,
+          out[8]=out8,   out[9]=out9,
+          out[10]=out10, out[11]=out11,
+          out[12]=out12, out[13]=out13,
+          out[14]=out14, out[15]=out15);
+
+    DMux8Way(in=out0, sel=address, 
+             a=reg0a, b=reg0b,
+             c=reg0c, d=reg0d,
+             e=reg0e, f=reg0f,
+             g=reg0g, h=reg0h);
+
+    DMux8Way(in=out1, sel=address, 
+             a=reg1a, b=reg1b,
+             c=reg1c, d=reg1d,
+             e=reg1e, f=reg1f,
+             g=reg1g, h=reg1h);
+
+    DMux8Way(in=out2, sel=address, 
+             a=reg2a, b=reg2b,
+             c=reg2c, d=reg2d,
+             e=reg2e, f=reg2f,
+             g=reg2g, h=reg2h);
+    
+    DMux8Way(in=out3, sel=address, 
+             a=reg3a, b=reg3b,
+             c=reg3c, d=reg3d,
+             e=reg3e, f=reg3f,
+             g=reg3g, h=reg3h);
+
+    DMux8Way(in=out4, sel=address, 
+             a=reg4a, b=reg4b,
+             c=reg4c, d=reg4d,
+             e=reg4e, f=reg4f,
+             g=reg4g, h=reg4h);
+
+    DMux8Way(in=out5, sel=address, 
+             a=reg5a, b=reg5b,
+             c=reg5c, d=reg5d,
+             e=reg5e, f=reg5f,
+             g=reg5g, h=reg5h);
+
+    DMux8Way(in=out6, sel=address, 
+             a=reg6a, b=reg6b,
+             c=reg6c, d=reg6d,
+             e=reg6e, f=reg6f,
+             g=reg6g, h=reg6h);
+
+    DMux8Way(in=out7, sel=address, 
+             a=reg7a, b=reg7b,
+             c=reg7c, d=reg7d,
+             e=reg7e, f=reg7f,
+             g=reg7g, h=reg7h);
+
+    DMux8Way(in=out8, sel=address, 
+             a=reg8a, b=reg8b,
+             c=reg8c, d=reg8d,
+             e=reg8e, f=reg8f,
+             g=reg8g, h=reg8h);
+
+    DMux8Way(in=out9, sel=address, 
+             a=reg9a, b=reg9b,
+             c=reg9c, d=reg9d,
+             e=reg9e, f=reg9f,
+             g=reg9g, h=reg9h);
+
+    DMux8Way(in=out10, sel=address, 
+             a=reg10a, b=reg10b,
+             c=reg10c, d=reg10d,
+             e=reg10e, f=reg10f,
+             g=reg10g, h=reg10h);
+
+    DMux8Way(in=out11, sel=address, 
+             a=reg11a, b=reg11b,
+             c=reg11c, d=reg11d,
+             e=reg11e, f=reg11f,
+             g=reg11g, h=reg11h);
+
+    DMux8Way(in=out12, sel=address, 
+             a=reg12a, b=reg12b,
+             c=reg12c, d=reg12d,
+             e=reg12e, f=reg12f,
+             g=reg12g, h=reg12h);
+
+    DMux8Way(in=out13, sel=address, 
+             a=reg13a, b=reg13b,
+             c=reg13c, d=reg13d,
+             e=reg13e, f=reg13f,
+             g=reg13g, h=reg13h);
+
+    DMux8Way(in=out14, sel=address, 
+             a=reg14a, b=reg14b,
+             c=reg14c, d=reg14d,
+             e=reg14e, f=reg14f,
+             g=reg14g, h=reg14h);
+
+    DMux8Way(in=out15, sel=address, 
+             a=reg15a, b=reg15b,
+             c=reg15c, d=reg15d,
+             e=reg15e, f=reg15f,
+             g=reg15g, h=reg15h);
+
+    // Set 'load' for a given memory address to result of
+    // anding the result of xoring each address position 
+    // with the flip of address at position
+    // for example, if address=010, then flipped is 101
+    // meaning that only And(Xor(010,101)) will be 1 and then
+    // we'll only load into that register.
+    Not(in=address[0], out=notaddress0);
+    Not(in=address[1], out=notaddress1);
+    Not(in=address[2], out=notaddress2);
+
+    Xor(a=false, b=notaddress0, out=xor00); //000
+    Xor(a=false, b=notaddress1, out=xor01);
+    Xor(a=false, b=notaddress2, out=xor02);
+    And(a=xor00, b=xor01, out=xor00and01);
+    And(a=xor00and01, b=xor02, out=xor00and01and02);
+
+    Register(in[0]=reg0a,   in[1]=reg1a,
+             in[2]=reg2a,   in[3]=reg3a,
+             in[4]=reg4a,   in[5]=reg5a,
+             in[6]=reg6a,   in[7]=reg7a,
+             in[8]=reg8a,   in[9]=reg9a,
+             in[10]=reg10a, in[11]=reg11a,
+             in[12]=reg12a, in[13]=reg13a,
+             in[14]=reg14a, in[15]=reg15a,
+             load=xor00and01and02, out=reg0out);
+
+    Xor(a=true,  b=notaddress0, out=xor10); //001
+    Xor(a=false, b=notaddress1, out=xor11);
+    Xor(a=false, b=notaddress2, out=xor12);
+    And(a=xor10, b=xor11, out=xor10and11);
+    And(a=xor10and11, b=xor12, out=xor10and11and12);
+
+    Register(in[0]=reg0b,   in[1]=reg1b,
+             in[2]=reg2b,   in[3]=reg3b,
+             in[4]=reg4b,   in[5]=reg5b,
+             in[6]=reg6b,   in[7]=reg7b,
+             in[8]=reg8b,   in[9]=reg9b,
+             in[10]=reg10b, in[11]=reg11b,
+             in[12]=reg12b, in[13]=reg13b,
+             in[14]=reg14b, in[15]=reg15b,
+             load=xor10and11and12, out=reg1out);
+
+    Xor(a=false, b=notaddress0, out=xor20); //010
+    Xor(a=true,  b=notaddress1, out=xor21);
+    Xor(a=false, b=notaddress2, out=xor22);
+    And(a=xor20, b=xor21, out=xor20and21);
+    And(a=xor20and21, b=xor22, out=xor20and21and22);
+
+    Register(in[0]=reg0c, in[1]=reg1c,
+             in[2]=reg2c, in[3]=reg3c,
+             in[4]=reg4c, in[5]=reg5c,
+             in[6]=reg6c, in[7]=reg7c,
+             in[8]=reg8c,   in[9]=reg9c,
+             in[10]=reg10c, in[11]=reg11c,
+             in[12]=reg12c, in[13]=reg13c,
+             in[14]=reg14c, in[15]=reg15c,
+             load=xor20and21and22, out=reg2out);
+
+    Xor(a=true,  b=notaddress0, out=xor30); //011
+    Xor(a=true,  b=notaddress1, out=xor31);
+    Xor(a=false, b=notaddress2, out=xor32);
+    And(a=xor30, b=xor31, out=xor30and31);
+    And(a=xor30and31, b=xor32, out=xor30and31and32);
+
+    Register(in[0]=reg0d,   in[1]=reg1d,
+             in[2]=reg2d,   in[3]=reg3d,
+             in[4]=reg4d,   in[5]=reg5d,
+             in[6]=reg6d,   in[7]=reg7d,
+             in[8]=reg8d,   in[9]=reg9d,
+             in[10]=reg10d, in[11]=reg11d,
+             in[12]=reg12d, in[13]=reg13d,
+             in[14]=reg14d, in[15]=reg15d,
+             load=xor30and31and32, out=reg3out);
+
+    Xor(a=false, b=notaddress0, out=xor40); //100
+    Xor(a=false, b=notaddress1, out=xor41);
+    Xor(a=true,  b=notaddress2, out=xor42);
+    And(a=xor40, b=xor41, out=xor40and41);
+    And(a=xor40and41, b=xor42, out=xor40and41and42);
+
+    Register(in[0]=reg0e, in[1]=reg1e,
+             in[2]=reg2e, in[3]=reg3e,
+             in[4]=reg4e, in[5]=reg5e,
+             in[6]=reg6e, in[7]=reg7e,
+             in[8]=reg8e,   in[9]=reg9e,
+             in[10]=reg10e, in[11]=reg11e,
+             in[12]=reg12e, in[13]=reg13e,
+             in[14]=reg14e, in[15]=reg15e,
+             load=xor40and41and42, out=reg4out);
+
+    Xor(a=true,  b=notaddress0, out=xor50); //101
+    Xor(a=false, b=notaddress1, out=xor51);
+    Xor(a=true,  b=notaddress2, out=xor52);
+    And(a=xor50, b=xor51, out=xor50and51);
+    And(a=xor50and51, b=xor52, out=xor50and51and52);
+
+    Register(in[0]=reg0f, in[1]=reg1f,
+             in[2]=reg2f, in[3]=reg3f,
+             in[4]=reg4f, in[5]=reg5f,
+             in[6]=reg6f, in[7]=reg7f,
+             in[8]=reg8f,   in[9]=reg9f,
+             in[10]=reg10f, in[11]=reg11f,
+             in[12]=reg12f, in[13]=reg13f,
+             in[14]=reg14f, in[15]=reg15f,
+             load=xor50and51and52, out=reg5out);
+
+    Xor(a=false, b=notaddress0, out=xor60); //110
+    Xor(a=true,  b=notaddress1, out=xor61);
+    Xor(a=true,  b=notaddress2, out=xor62);
+    And(a=xor60, b=xor61, out=xor60and61);
+    And(a=xor60and61, b=xor62, out=xor60and61and62);
+
+    Register(in[0]=reg0g, in[1]=reg1g,
+             in[2]=reg2g, in[3]=reg3g,
+             in[4]=reg4g, in[5]=reg5g,
+             in[6]=reg6g, in[7]=reg7g,
+             in[8]=reg8g,   in[9]=reg9g,
+             in[10]=reg10g, in[11]=reg11g,
+             in[12]=reg12g, in[13]=reg13g,
+             in[14]=reg14g, in[15]=reg15g,
+             load=xor60and61and62, out=reg6out);
+
+    Xor(a=true, b=notaddress0, out=xor70); //111
+    Xor(a=true,  b=notaddress1, out=xor71);
+    Xor(a=true,  b=notaddress2, out=xor72);
+    And(a=xor70, b=xor71, out=xor70and71);
+    And(a=xor70and71, b=xor72, out=xor70and71and72);
+
+    Register(in[0]=reg0h, in[1]=reg1h,
+             in[2]=reg2h, in[3]=reg3h,
+             in[4]=reg4h, in[5]=reg5h,
+             in[6]=reg6h, in[7]=reg7h,
+             in[8]=reg8h,   in[9]=reg9h,
+             in[10]=reg10h, in[11]=reg11h,
+             in[12]=reg12h, in[13]=reg13h,
+             in[14]=reg14h, in[15]=reg15h,
+             load=xor70and71and72, out=reg7out);
+
+    Mux8Way16(a=reg0out, b=reg1out,
+              c=reg2out, d=reg3out,
+              e=reg4out, f=reg5out,
+              g=reg6out, h=reg7out,
+              sel=address, out=out, out=carryout);
 }
