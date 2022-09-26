@@ -5,8 +5,8 @@
 
 /**
  * Memory of 64 registers, each 16 bit-wide. Out holds the value
- * stored at the memory location specified by address. If load==1, then 
- * the in value is loaded into the memory location specified by address 
+ * stored at the memory location specified by address. If load==1, then
+ * the in value is loaded into the memory location specified by address
  * (the loaded value will be emitted to out from the next time step onward).
  */
 
@@ -15,5 +15,20 @@ CHIP RAM64 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+
+    Add16(a[0..5]=address, a[6..15]=false,
+          b[0..15]=false, out=address16bit);
+
+    Add16(a=address16bit, b=false, out=addressless8,
+          out[15]=addressless8signbit);
+    And(a=addressless8signbit, b=1, out=loadram0);
+    RAM8(in=in, address=address[0..2],
+         load=loadram0, out=outram0);
+
+    Add16(a=addressless8, b=-8, out=addressless16);
+    And(a=addressless16[15], b=1, out=loadram1);
+    RAM8(in=in, address=addressless8[0..2],
+         load=loadram1, out=outram1);
+
+
 }
