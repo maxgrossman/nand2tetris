@@ -15,20 +15,34 @@ CHIP RAM64 {
     OUT out[16];
 
     PARTS:
-
+    // project the address number onto a 16 bit number.
     Add16(a[0..5]=address, a[6..15]=false,
           b[0..15]=false, out=address16bit);
+    
+    // get me negative 8 to subtract from 16bit address
+    Or16(a[0..2]=false, a[3..15]=true, b[0..15]=false, out=negative8);
 
-    Add16(a=address16bit, b=false, out=addressless8,
-          out[15]=addressless8signbit);
-    And(a=addressless8signbit, b=1, out=loadram0);
+    // if subtracting 8 from the address gives me a negative number,
+    // then the adress is in ram0 address space.
+    Add16(a=address16bit, b=negative8, out=address16bitless8, out[15]=loadram0, out[0..2]=shift8address);
     RAM8(in=in, address=address[0..2],
          load=loadram0, out=outram0);
 
-    Add16(a=addressless8, b=-8, out=addressless16);
-    And(a=addressless16[15], b=1, out=loadram1);
-    RAM8(in=in, address=addressless8[0..2],
+    // if subtracting 16 from address gives me a negative number and subtracting 8 did not, 
+    // then the address is in ram1 address space.
+    Add16(a=address16bitless8, b=negative8, out=address16bitless16, out[15]=less16signbit, out[0..2]=shift16address);
+    Not(in=loadrom0, out=notloadram0);
+    And(a=less16signbit, b=notloadram0, out=loadram1);
+
+    RAM8(in=in, address=shift8address,
          load=loadram1, out=outram1);
 
+    // if subtracting 24 from address gives me a negative number and subtracting 16 did not, 
+    // then the address is in ram2 address space.
+    Add16(a=address16bitless16, b=negative8, out=address16bitless24, out[15]=less24signbit);
+    Not(in=loadrom1, out=notloadram1);
+    And(a=less24signbit, b=notloadram1, out=loadram2);
 
+    RAM8(in=in, address=shift16address,
+         load=loadram2, out=outram2);
 }
